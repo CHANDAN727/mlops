@@ -1,0 +1,35 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env
+
+# MLflow
+mlruns/
+
+# Models (generated)
+models/*.joblib
+models/*.png
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Pytest
+.pytest_cache/
+htmlcov/
+coverage.xml
+.coverage
+
+# Docker
+*.tar
+
+# Archives
+*.zip

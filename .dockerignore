@@ -1,0 +1,17 @@
+.git/
+.github/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+mlruns/
+*.zip
+venv/
+.env
+notebooks/
+tests/
+*.md
+Mlops_Assignment1.pdf
+heart+disease/
