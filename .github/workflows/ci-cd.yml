@@ -8,8 +8,8 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GKE_CLUSTER: heart-disease-cluster
-  GKE_ZONE: us-central1-a
+  VM_NAME: ${{ secrets.GCP_VM_NAME }}
+  VM_ZONE: ${{ secrets.GCP_VM_ZONE }}
   IMAGE: gcr.io/${{ secrets.GCP_PROJECT_ID }}/heart-disease-api
   PYTHON_VERSION: "3.11"
 
@@ -129,18 +129,15 @@ jobs:
           docker push ${{ env.IMAGE }}:latest
 
   # ──────────────────────────────────────────────────────────────
-  # JOB 4: Deploy to GKE
+  # JOB 4: Deploy to GCP VM
   # ──────────────────────────────────────────────────────────────
-  deploy-to-gke:
-    name: Deploy to GKE
+  deploy-to-vm:
+    name: Deploy to GCP VM
     runs-on: ubuntu-latest
     needs: build-and-push
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -149,40 +146,30 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Get GKE credentials
-        uses: google-github-actions/get-gke-credentials@v2
-        with:
-          cluster_name: ${{ env.GKE_CLUSTER }}
-          location: ${{ env.GKE_ZONE }}
-
-      - name: Substitute image tag in deployment manifest
+      - name: Deploy Docker container on GCP VM
         run: |
-          sed -i "s|gcr.io/YOUR_GCR_PROJECT_ID/heart-disease-api:latest|${{ env.IMAGE }}:${{ github.sha }}|g" \
-            deployment/deployment.yaml
+          gcloud compute ssh ${{ env.VM_NAME }} \
+            --zone=${{ env.VM_ZONE }} \
+            --project=${{ env.PROJECT_ID }} \
+            --command="
+              gcloud auth configure-docker --quiet
+              docker pull ${{ env.IMAGE }}:latest
+              docker stop heart-disease-api 2>/dev/null || true
+              docker rm heart-disease-api 2>/dev/null || true
+              docker run -d \
+                --name heart-disease-api \
+                --restart unless-stopped \
+                -p 8080:8080 \
+                ${{ env.IMAGE }}:latest
+              sleep 5
+              curl -sf http://localhost:8080/health && echo 'Deployment successful!' || echo 'Health check failed'
+            "
 
-      - name: Apply Kubernetes manifests
+      - name: Get VM External IP
         run: |
-          kubectl apply -f deployment/deployment.yaml
-          kubectl apply -f deployment/service.yaml
-          kubectl apply -f deployment/hpa.yaml
-
-      - name: Wait for rollout
-        run: |
-          kubectl rollout status deployment/heart-disease-api --timeout=120s
-
-      - name: Get Load Balancer External IP
-        run: |
-          echo "Waiting for external IP..."
-          for i in $(seq 1 20); do
-            EXTERNAL_IP=$(kubectl get svc heart-disease-api-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null)
-            if [ -n "$EXTERNAL_IP" ]; then
-              echo "✅ API is live at: http://$EXTERNAL_IP/docs"
-              break
-            fi
-            sleep 15
-          done
-
-      - name: Smoke test the deployed API
-        run: |
-          EXTERNAL_IP=$(kubectl get svc heart-disease-api-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          curl -sf http://$EXTERNAL_IP/health || echo "Health check pending..."
+          EXTERNAL_IP=$(gcloud compute instances describe ${{ env.VM_NAME }} \
+            --zone=${{ env.VM_ZONE }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+          echo "✅ API is live at: http://$EXTERNAL_IP:8080/docs"
+          echo "📊 Metrics at: http://$EXTERNAL_IP:8080/metrics"
