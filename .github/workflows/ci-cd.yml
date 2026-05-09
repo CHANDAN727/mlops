@@ -164,8 +164,8 @@ jobs:
               cd ~/mlops || git clone https://github.com/CHANDAN727/mlops.git ~/mlops
               cd ~/mlops && git pull origin main
               sudo gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-              sudo docker compose pull
-              sudo docker compose up -d --force-recreate
+              sudo docker-compose pull
+              sudo docker-compose up -d --force-recreate
               sleep 10
               curl -sf http://localhost/health && echo 'Deployment successful!' || echo 'Health check pending...'
             "
@@ -176,4 +176,4 @@ jobs:
           echo "📡 API Docs:   http://35.238.24.35/docs"
           echo "📊 Grafana:    http://35.238.24.35/grafana/"
           echo "🔍 Prometheus: http://35.238.24.35/prometheus/"
-          echo "� Metrics:    http://35.238.24.35/metrics"
+          echo "📈 Metrics:    http://35.238.24.35/metrics"
