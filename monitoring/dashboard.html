@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease MLOps Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 30px; text-align: center; border-bottom: 3px solid #3b82f6; }
+        .header h1 { font-size: 2rem; color: #fff; margin-bottom: 8px; }
+        .header p { color: #94a3b8; font-size: 1rem; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .status-bar { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .status-card { flex: 1; min-width: 200px; background: #1e293b; border-radius: 12px; padding: 20px; border-left: 4px solid #3b82f6; }
+        .status-card.green { border-left-color: #22c55e; }
+        .status-card.yellow { border-left-color: #eab308; }
+        .status-card.purple { border-left-color: #a855f7; }
+        .status-card h3 { color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .status-card .value { font-size: 1.8rem; font-weight: bold; color: #fff; }
+        .status-card .sub { color: #64748b; font-size: 0.8rem; margin-top: 4px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: #1e293b; border-radius: 12px; padding: 25px; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); }
+        .card h2 { color: #fff; font-size: 1.2rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .card a { display: inline-block; background: #3b82f6; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; transition: background 0.2s; margin-top: 10px; }
+        .card a:hover { background: #2563eb; }
+        .card p { color: #94a3b8; line-height: 1.6; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+        .badge-green { background: #166534; color: #4ade80; }
+        .badge-blue { background: #1e3a5f; color: #60a5fa; }
+        .try-section { background: #1e293b; border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+        .try-section h2 { color: #fff; margin-bottom: 15px; }
+        .try-section pre { background: #0f172a; padding: 15px; border-radius: 8px; overflow-x: auto; color: #a5f3fc; font-size: 0.85rem; line-height: 1.5; }
+        .try-section button { background: #22c55e; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 15px; transition: background 0.2s; }
+        .try-section button:hover { background: #16a34a; }
+        #result { margin-top: 15px; padding: 15px; background: #0f172a; border-radius: 8px; display: none; }
+        .footer { text-align: center; padding: 20px; color: #475569; font-size: 0.85rem; border-top: 1px solid #1e293b; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🫀 Heart Disease MLOps Dashboard</h1>
+        <p>End-to-End ML Pipeline — CI/CD • Monitoring • Prediction API</p>
+    </div>
+
+    <div class="container">
+        <!-- Status Cards -->
+        <div class="status-bar">
+            <div class="status-card green" id="health-card">
+                <h3>API Status</h3>
+                <div class="value" id="api-status">Checking...</div>
+                <div class="sub">Heart Disease Prediction API</div>
+            </div>
+            <div class="status-card">
+                <h3>Model</h3>
+                <div class="value">Logistic Regression</div>
+                <div class="sub">ROC-AUC: 0.9513</div>
+            </div>
+            <div class="status-card yellow">
+                <h3>Dataset</h3>
+                <div class="value">303</div>
+                <div class="sub">UCI Heart Disease Cleveland</div>
+            </div>
+            <div class="status-card purple">
+                <h3>Features</h3>
+                <div class="value">13</div>
+                <div class="sub">Clinical attributes</div>
+            </div>
+        </div>
+
+        <!-- Service Links -->
+        <div class="grid">
+            <div class="card">
+                <h2>📡 API Documentation</h2>
+                <p>Interactive Swagger UI for testing the prediction API. Send requests, view schemas, and explore all endpoints.</p>
+                <a href="/docs" target="_blank">Open API Docs →</a>
+            </div>
+            <div class="card">
+                <h2>📊 Grafana Dashboard</h2>
+                <p>Real-time monitoring with request rates, latency percentiles, prediction distribution, and system metrics.</p>
+                <a href="/grafana/" target="_blank">Open Grafana →</a>
+                <div class="sub" style="margin-top:8px; color:#64748b">Login: admin / mlops2024</div>
+            </div>
+            <div class="card">
+                <h2>🔍 Prometheus</h2>
+                <p>Query raw metrics, view targets, and inspect the time-series data collected from the API.</p>
+                <a href="/prometheus/" target="_blank">Open Prometheus →</a>
+            </div>
+            <div class="card">
+                <h2>📈 Raw Metrics</h2>
+                <p>Prometheus-formatted metrics endpoint showing request counts, latency histograms, and predictions.</p>
+                <a href="/metrics" target="_blank">View Metrics →</a>
+            </div>
+        </div>
+
+        <!-- Try Prediction -->
+        <div class="try-section">
+            <h2>🧪 Try a Prediction</h2>
+            <p style="color:#94a3b8; margin-bottom:15px;">Click the button to send a sample patient to the API:</p>
+            <pre id="sample-data">{
+  "age": 63, "sex": 1, "cp": 1, "trestbps": 145, "chol": 233,
+  "fbs": 1, "restecg": 2, "thalach": 150, "exang": 0,
+  "oldpeak": 2.3, "slope": 3, "ca": 0, "thal": 6
+}</pre>
+            <button onclick="predict()">🔮 Predict</button>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        MLOps Assignment — BITS Pilani | CI/CD: GitHub Actions | Monitoring: Prometheus + Grafana | Deployed on GCP VM
+    </div>
+
+    <script>
+        // Check API health
+        fetch('/health')
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('api-status').textContent = d.status === 'ok' ? '● Online' : '○ Offline';
+                document.getElementById('health-card').style.borderLeftColor = d.status === 'ok' ? '#22c55e' : '#ef4444';
+            })
+            .catch(() => {
+                document.getElementById('api-status').textContent = '● Offline';
+                document.getElementById('health-card').style.borderLeftColor = '#ef4444';
+            });
+
+        // Predict function
+        function predict() {
+            const data = JSON.parse(document.getElementById('sample-data').textContent);
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<span style="color:#eab308">⏳ Predicting...</span>';
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(d => {
+                const color = d.prediction === 1 ? '#ef4444' : '#22c55e';
+                const icon = d.prediction === 1 ? '🔴' : '🟢';
+                resultDiv.innerHTML = `
+                    <div style="color:${color}; font-size:1.3rem; font-weight:bold; margin-bottom:10px">
+                        ${icon} ${d.prediction_label}
+                    </div>
+                    <div style="color:#94a3b8">
+                        Confidence: <strong style="color:#fff">${(d.confidence * 100).toFixed(1)}%</strong> &nbsp;|&nbsp;
+                        Disease Probability: <strong style="color:#fff">${(d.probability_disease * 100).toFixed(1)}%</strong>
+                    </div>
+                `;
+            })
+            .catch(e => {
+                resultDiv.innerHTML = `<span style="color:#ef4444">❌ Error: ${e.message}</span>`;
+            });
+        }
+    </script>
+</body>
+</html>

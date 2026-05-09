@@ -161,20 +161,19 @@ jobs:
             --project=${{ env.PROJECT_ID }} \
             --quiet \
             --command="
+              cd ~/mlops || git clone https://github.com/CHANDAN727/mlops.git ~/mlops
+              cd ~/mlops && git pull origin main
               sudo gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-              sudo docker pull ${{ env.IMAGE }}:latest
-              sudo docker stop heart-disease-api 2>/dev/null || true
-              sudo docker rm heart-disease-api 2>/dev/null || true
-              sudo docker run -d \
-                --name heart-disease-api \
-                --restart unless-stopped \
-                -p 8080:8080 \
-                ${{ env.IMAGE }}:latest
-              sleep 5
-              curl -sf http://localhost:8080/health && echo 'Deployment successful!' || echo 'Health check pending...'
+              sudo docker compose pull
+              sudo docker compose up -d --force-recreate
+              sleep 10
+              curl -sf http://localhost/health && echo 'Deployment successful!' || echo 'Health check pending...'
             "
 
-      - name: Show API URL
+      - name: Show URLs
         run: |
-          echo "✅ API is live at: http://35.238.24.35:8080/docs"
-          echo "📊 Metrics at: http://35.238.24.35:8080/metrics"
+          echo "✅ Dashboard:  http://35.238.24.35"
+          echo "📡 API Docs:   http://35.238.24.35/docs"
+          echo "📊 Grafana:    http://35.238.24.35/grafana/"
+          echo "🔍 Prometheus: http://35.238.24.35/prometheus/"
+          echo "� Metrics:    http://35.238.24.35/metrics"

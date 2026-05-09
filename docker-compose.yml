@@ -1,0 +1,64 @@
+version: "3.8"
+
+services:
+  # ── Heart Disease API ──────────────────────────────────────
+  api:
+    image: us-central1-docker.pkg.dev/project-5e96c14d-9327-4739-aae/mlops-repo/heart-disease-api:latest
+    container_name: heart-disease-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Prometheus ─────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+
+  # ── Grafana ────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=mlops2024
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana-provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana-dashboards:/var/lib/grafana/dashboards
+
+  # ── Nginx (reverse proxy + dashboard) ──────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./monitoring/nginx.conf:/etc/nginx/nginx.conf
+      - ./monitoring/dashboard.html:/usr/share/nginx/html/index.html
+    depends_on:
+      - api
+      - prometheus
+      - grafana
+
+volumes:
+  prometheus_data:
+  grafana_data:
