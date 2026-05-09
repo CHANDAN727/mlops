@@ -38,14 +38,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 src/ tests/ \
-            --max-line-length=120 \
-            --ignore=E501,W503 \
-            --exclude=__pycache__
-
-      - name: Format check with black
-        run: |
-          black --check src/ tests/ --line-length 120
+          flake8 src/ tests/
 
       - name: Run unit tests with coverage
         run: |

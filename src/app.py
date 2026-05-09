@@ -4,12 +4,9 @@ FastAPI model serving application with request logging and Prometheus monitoring
 import os
 import time
 import logging
-import json
-from datetime import datetime, timezone
 import joblib
 import numpy as np
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
@@ -75,10 +72,12 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 f"latency={latency:.4f}s | client={request.client.host if request.client else 'unknown'}"
             )
 
+
 # ---------------------------------------------------------------------------
 # Load model at startup
 # ---------------------------------------------------------------------------
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "../models")
+
 
 def load_model():
     model_path = os.path.join(MODELS_DIR, "best_model.joblib")

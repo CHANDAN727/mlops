@@ -4,7 +4,6 @@ Data processing module for Heart Disease UCI Dataset.
 import os
 import logging
 import pandas as pd
-import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer

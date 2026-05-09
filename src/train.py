@@ -6,19 +6,17 @@ import os
 import logging
 import tempfile
 import joblib
-import mlflow
-import mlflow.sklearn
-import numpy as np
-import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # noqa: E402
+import mlflow
+import mlflow.sklearn
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score,
-    roc_auc_score, classification_report, confusion_matrix,
+    roc_auc_score, classification_report,
     RocCurveDisplay, ConfusionMatrixDisplay,
 )
 from sklearn.pipeline import Pipeline

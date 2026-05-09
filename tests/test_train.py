@@ -3,20 +3,21 @@ Unit tests for model training module.
 """
 import sys
 import os
-import pytest
-import numpy as np
-import joblib
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.data_processing import (
-    load_data, preprocess, build_preprocessing_pipeline,
-    get_train_test_split, FEATURE_COLS,
-)
-from src.train import build_model_pipeline, evaluate_model
+import pytest  # noqa: E402
+import numpy as np  # noqa: E402
+import joblib  # noqa: E402
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from src.data_processing import (  # noqa: E402
+    load_data, preprocess, build_preprocessing_pipeline,
+    get_train_test_split,
+)
+from src.train import build_model_pipeline, evaluate_model  # noqa: E402
+
+from sklearn.linear_model import LogisticRegression  # noqa: E402
+from sklearn.ensemble import RandomForestClassifier  # noqa: E402
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "../data/processed.cleveland.data")
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "../models/best_model.joblib")
