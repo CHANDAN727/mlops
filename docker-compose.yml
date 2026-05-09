@@ -3,6 +3,7 @@ version: "3.8"
 services:
   # ── Heart Disease API ──────────────────────────────────────
   api:
+    build: .
     image: us-central1-docker.pkg.dev/project-5e96c14d-9327-4739-aae/mlops-repo/heart-disease-api:latest
     container_name: heart-disease-api
     restart: unless-stopped
